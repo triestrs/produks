@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Produk Digital</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: #0f0f1f;
+      color: #00fff7;
+    }
+    .product {
+      background: #111126cc;
+      border-radius: 20px;
+      padding: 20px;
+      margin: 30px auto;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 20px #00fff7;
+      text-align: center;
+    }
+    h1 {
+      text-align: center;
+      padding: 20px;
+    }
+    .price {
+      font-size: 1.5rem;
+      margin: 10px 0;
+    }
+    button {
+      background: #00fff7;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 0 20px #00fff7;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #00cfc3;
+    }
+
+    #popupQris, #popupSuccess, #overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+    }
+
+    .popup {
+      background: #111126;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 0 30px #00fff7;
+    }
+
+    #popupQris canvas {
+      margin: 10px auto;
+      display: block;
+      width: 240px;
+      height: 240px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Pilih Produk</h1>
+
+<div class="product" data-name="Tools DDoS" data-price="25000">
+  <h2>Tools DDoS</h2>
+  <p>Tools serangan layer 7 powerful.</p>
+  <div class="price">Rp 25.000</div>
+  <button class="buyBtn">Beli Sekarang</button>
+</div>
+
+<div class="product" data-name="API PG Orkut" data-price="1000">
+  <h2>API PG Orkut</h2>
+  <p>API payment gateway Orkut siap pakai.</p>
+  <div class="price">Rp 40.000</div>
+  <button class="buyBtn">Beli Sekarang</button>
+</div>
+
+<!-- QRIS Popup -->
+<div id="overlay">
+  <div class="popup" id="popupQris">
+    <div id="qrcode"></div>
+    <p id="paymentStatus">Menunggu pembayaran...</p>
+    <button onclick="cancelPayment()">Batalkan</button>
+  </div>
+</div>
+
+<!-- Success Popup -->
+<div id="popupSuccess" class="popup">
+  <p>Pembayaran berhasil! 🎉</p>
+  <a href="#" id="joinGroupBtn" target="_blank"><button>Join Grup Telegram</button></a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+<script>
+  const botToken = '8178994002:AAGUXC44XiIMJCfdt0DcgJAGzMnexM15Jwo';
+  const ownerId = '930068740';
+  let settings = null;
+  let checkInterval;
+  let checkCount = 0;
+  let maxChecks = 6;
+  let intervalMs = 5 * 60 * 1000;
+  let currentTrx = {};
+
+  fetch('./setting.json')
+    .then(res => res.json())
+    .then(data => settings = data)
+    .catch(() => alert('Gagal memuat konfigurasi.'));
+
+  document.querySelectorAll('.buyBtn').forEach(btn => {
+    btn.onclick = async () => {
+      if (!settings) return alert('Konfigurasi belum siap.');
+
+      const parent = btn.closest('.product');
+      const productName = parent.dataset.name;
+      const amount = parseInt(parent.dataset.price);
+      const idTrx = 'TRX-' + Date.now();
+      const ipUser = await fetch('https://api.ipify.org?format=json').then(res => res.json()).then(d => d.ip).catch(() => 'unknown');
+
+      currentTrx = { idTrx, productName, amount, ipUser };
+
+      sendToTelegram(`🛒 New Buyer\nid: ${idTrx}\nip user: ${ipUser}\nbuy goods: ${productName}\ntotal: Rp ${amount}\nstatus: pending`);
+
+      const url = `https://restapi-v2.simplebot.my.id/orderkuota/createpayment?apikey=${settings.apikey}&amount=${amount}&codeqr=${encodeURIComponent(settings.qrisOrderKuota)}`;
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        if (!json.qr_url) throw new Error("QR URL not found");
+
+        document.getElementById('qrcode').innerHTML = '';
+        await QRCode.toCanvas(document.getElementById('qrcode'), json.qr_url, { width: 240 });
+
+        document.getElementById('overlay').style.display = 'flex';
+        document.getElementById('popupQris').style.display = 'block';
+
+        checkCount = 0;
+        checkPaymentStatus(); // first check
+        checkInterval = setInterval(checkPaymentStatus, intervalMs);
+
+      } catch (e) {
+        alert('Gagal membuat QRIS.');
+        console.error(e);
+      }
+    };
+  });
+
+  function cancelPayment() {
+    clearInterval(checkInterval);
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('popupQris').style.display = 'none';
+    document.getElementById('paymentStatus').textContent = '';
+  }
+
+  async function checkPaymentStatus() {
+    checkCount++;
+    document.getElementById('paymentStatus').textContent = `Mengecek status... (${checkCount * 5} menit)`;
+
+    const cekUrl = `https://restapi-v2.simplebot.my.id/orderkuota/cekstatus?apikey=${settings.apikey}&merchant=${settings.merchantIdOrderKuota}&keyorkut=${settings.apiOrderKuota}`;
+    try {
+      const res = await fetch(cekUrl);
+      const json = await res.json();
+      const status = json.status;
+
+      if (['PAID', 'SUCCESS', 'SETTLEMENT'].includes(status)) {
+        clearInterval(checkInterval);
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('popupQris').style.display = 'none';
+        showSuccessPopup();
+
+        sendToTelegram(`✅ Transaction Successful\nid: ${currentTrx.idTrx}\nip user: ${currentTrx.ipUser}\ngoods: ${currentTrx.productName}\ntotal: Rp ${currentTrx.amount}\nstatus: ${status}`);
+
+      } else if (['FAILED', 'EXPIRED'].includes(status)) {
+        clearInterval(checkInterval);
+        alert('Pembayaran gagal/expired.');
+        cancelPayment();
+      } else if (checkCount >= maxChecks) {
+        clearInterval(checkInterval);
+        alert('Waktu pembayaran habis.');
+        cancelPayment();
+      }
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function showSuccessPopup() {
+    document.getElementById('popupSuccess').style.display = 'block';
+    document.getElementById('overlay').style.display = 'flex';
+    document.getElementById('joinGroupBtn').href = settings.telegramGroupUrl;
+  }
+
+  function sendToTelegram(message) {
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ chat_id: ownerId, text: message })
+    });
+  }
+</script>
+</body>
+</html>
