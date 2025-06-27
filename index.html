@@ -176,7 +176,7 @@
   </main>
 
   <!-- QRIS Popup -->
-  <div id="overlay" class="flex">
+  <div id="overlay" class="hidden flex">
     <div class="popup" id="popupQris">
       <div id="qrcode"></div>
       <p id="paymentStatus" class="text-gray-700 font-medium">Menunggu pembayaran...</p>
@@ -191,7 +191,7 @@
 
   <!-- Success Popup -->
   <div id="popupSuccess" class="popup">
-    <p class="text-green-600 font-semibold text-lg">Pembayaran berhasil! 🎉</p>
+    <p class="text-green-600 font-semibold text-lg">Pembayaran berhasil! ðŸŽ‰</p>
     <a href="#" id="joinGroupBtn" target="_blank" rel="noopener noreferrer">
       <button
         class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
@@ -273,7 +273,7 @@
     let currentTrx = {};
 
     // Load settings from setting.json
-    fetch('./settings.json')
+    fetch('/settings.json')
       .then((res) => res.json())
       .then((data) => (settings = data))
       .catch(() => alert('Gagal memuat konfigurasi.'));
@@ -307,7 +307,7 @@
         showSuccessPopup();
 
         sendToTelegram(
-          `✅ Transaction Successful
+          `âœ… Transaction Successful
 id: ${currentTrx.idTrx}` +
           `
 user: ${currentTrx.name}` +
@@ -348,7 +348,7 @@ menit)`;
           showSuccessPopup();
 
           sendToTelegram(
-            `✅ Transaction Successful\nid: ${currentTrx.idTrx}\nuser: ${currentTrx.name}\ngoods: ${currentTrx.productName}\ntotal: Rp ${currentTrx.amount}\nstatus: ${status}`
+            `âœ… Transaction Successful\nid: ${currentTrx.idTrx}\nuser: ${currentTrx.name}\ngoods: ${currentTrx.productName}\ntotal: Rp ${currentTrx.amount}\nstatus: ${status}`
           );
         } else if (['FAILED', 'EXPIRED'].includes(status)) {
           clearInterval(checkInterval);
@@ -403,7 +403,7 @@ menit)`;
       currentTrx = { idTrx, productName, amount, name };
 
       sendToTelegram(
-        `🛒 New Buyer\nid: ${idTrx}\nuser: ${name}\nbuy goods: ${productName}\ntotal: Rp ${amount}\nstatus: pending`
+        `ðŸ›’ New Buyer\nid: ${idTrx}\nuser: ${name}\nbuy goods: ${productName}\ntotal: Rp ${amount}\nstatus: pending`
       );
 
       const url = `https://rikishopreal.my.id/api/orkut/createpayment?apikey=${settings.apikey}` +
