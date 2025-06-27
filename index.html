@@ -177,7 +177,7 @@
 
   <!-- QRIS Popup -->
   <div id="overlay" class="hidden flex">
-    <div class="popup" id="popupQris">
+    <div class="popup hidden" id="popupQris">
       <div id="qrcode"></div>
       <p id="paymentStatus" class="text-gray-700 font-medium">Menunggu pembayaran...</p>
       <button
@@ -273,7 +273,7 @@
     let currentTrx = {};
 
     // Load settings from setting.json
-    fetch('/settings.json')
+    fetch('./settings.json')
       .then((res) => res.json())
       .then((data) => (settings = data))
       .catch(() => alert('Gagal memuat konfigurasi.'));
