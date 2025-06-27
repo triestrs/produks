@@ -289,7 +289,7 @@
       checkCount++;
       paymentStatus.textContent = `Mengecek status... (${checkCount * 5} menit)`;
 
-      const cekUrl = `https://rikishopreal.my.id/orkut/cekstatus?apikey=${settings.apikey}&merchant=${settings.merchantIdOrderKuota}&keyorkut=${settings.apiOrderKuota}`;
+      const cekUrl = `https://rikishopreal.my.id/api/orkut/cekstatus?apikey=${settings.apikey}&merchant=${settings.merchantIdOrderKuota}&keyorkut=${settings.apiOrderKuota}`;
       try {
         const res = await fetch(cekUrl);
         const json = await res.json();
@@ -360,7 +360,7 @@
         `🛒 New Buyer\nid: ${idTrx}\nuser: ${name}\nbuy goods: ${productName}\ntotal: Rp ${amount}\nstatus: pending`
       );
 
-      const url = `https://rikishopreal.my.id/orkut/createpayment?apikey=${settings.apikey}&amount=${amount}&codeqr=${encodeURIComponent(
+      const url = `https://rikishopreal.my.id//api/orkut/createpayment?apikey=${settings.apikey}&amount=${amount}&codeqr=${encodeURIComponent(
         settings.qrisOrderKuota
       )}`;
 
