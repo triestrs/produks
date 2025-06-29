@@ -1,26 +1,19 @@
- <html lang="id">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jasa Cuci Kendaraan</title>
+  <title>Jasa Cuci Motor</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
   />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter&display=swap"
-    rel="stylesheet"
-  />
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
     #overlay {
-      background-color: rgba(0, 0, 0, 0.6);
+      display: none;
       position: fixed;
       inset: 0;
-      display: none;
+      background: rgba(0, 0, 0, 0.6);
       justify-content: center;
       align-items: center;
       z-index: 50;
@@ -31,143 +24,120 @@
       padding: 1.5rem;
       max-width: 320px;
       width: 90vw;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       text-align: center;
+      z-index: 60;
+    }
+    #popupQris {
       display: none;
       flex-direction: column;
       gap: 1rem;
     }
-    #qrcode canvas {
-      margin: 0 auto;
-      display: block;
+    #popupSuccess {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
     }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
 
   <header class="bg-blue-600 text-white p-4 text-center text-2xl font-semibold">
-    Jasa Cuci Kendaraan
+    Jasa Cuci Motor
   </header>
 
   <main class="flex-grow container mx-auto p-4 max-w-lg">
-    <div class="mb-4 border-b border-gray-300">
-      <nav class="flex space-x-4" role="tablist" aria-label="Tabs">
+    <div class="mb-6">
+      <nav class="flex border-b border-gray-300">
         <button
-          id="tab-harga"
-          aria-controls="panel-harga"
+          id="tabHargaPromo"
+          class="flex-1 py-2 text-center font-medium border-b-4 border-blue-600 text-blue-600"
           aria-selected="true"
-          role="tab"
           type="button"
-          class="py-2 px-4 text-blue-600 border-b-2 border-blue-600 font-semibold focus:outline-none"
         >
-          Harga
+          Harga & Promo
         </button>
         <button
-          id="tab-pembayaran"
-          aria-controls="panel-pembayaran"
+          id="tabPembayaran"
+          class="flex-1 py-2 text-center font-medium border-b-4 border-transparent text-gray-600 hover:text-blue-600"
           aria-selected="false"
-          role="tab"
           type="button"
-          class="py-2 px-4 text-gray-600 border-b-2 border-transparent hover:text-blue-600 focus:outline-none"
         >
           Pembayaran
         </button>
       </nav>
     </div>
 
-    <section
-      id="panel-harga"
-      role="tabpanel"
-      tabindex="0"
-      aria-labelledby="tab-harga"
-      class=""
-    >
+    <section id="contentHargaPromo" class="">
       <div class="space-y-6">
         <div class="p-4 bg-white rounded shadow">
-          <h3 class="text-lg font-semibold mb-2">Cuci Motor</h3>
-          <p class="text-gray-700 text-base">Harga: Rp 15.000</p>
+          <h2 class="text-xl font-semibold mb-2">Paket Cuci Motor Reguler</h2>
+          <p class="text-gray-700">Harga: Rp 25.000</p>
         </div>
         <div class="p-4 bg-white rounded shadow">
-          <h3 class="text-lg font-semibold mb-2">Cuci Mobil</h3>
-          <p class="text-gray-700 text-base">Harga: Rp 25.000</p>
+          <h2 class="text-xl font-semibold mb-2">Paket Cuci Motor Premium + Wax</h2>
+          <p class="text-gray-700">Harga: Rp 50.000</p>
         </div>
       </div>
     </section>
 
-    <section
-      id="panel-pembayaran"
-      role="tabpanel"
-      tabindex="0"
-      aria-labelledby="tab-pembayaran"
-      class="hidden"
-    >
-      <form id="paymentForm" class="bg-white p-6 rounded shadow space-y-6" novalidate>
+    <section id="contentPembayaran" class="hidden">
+      <form id="formPembayaran" class="bg-white p-6 rounded shadow space-y-6" autocomplete="off">
         <div>
-          <label for="produk" class="block mb-1 font-medium text-gray-700"
-            >Produk</label
-          >
+          <label for="produk" class="block mb-1 font-medium text-gray-700">Produk</label>
           <select
             id="produk"
             name="produk"
-            required
             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           >
             <option value="" disabled selected>Pilih produk</option>
-            <option value="Cuci Motor " data-price="15000"
-              >Cuci Motor  - Rp 15.000</option
-            >
-            <option value="Cuci Mobil" data-price="25000"
-              >Cuci Mobil - Rp 25.000</option
-            >
+            <option value="reguler" data-price="25000">Paket Cuci Motor Reguler - Rp 25.000</option>
+            <option value="premium" data-price="50000">Paket Cuci Motor Premium + Wax - Rp 50.000</option>
           </select>
         </div>
 
         <div>
-          <label for="totalOrder" class="block mb-1 font-medium text-gray-700"
-            >Total Order</label
-          >
+          <label for="totalOrder" class="block mb-1 font-medium text-gray-700">Total Order</label>
           <input
             type="number"
             id="totalOrder"
             name="totalOrder"
             min="1"
             value="1"
-            required
             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
         </div>
 
         <div>
-          <label for="harga" class="block mb-1 font-medium text-gray-700"
-            >Harga (Rp)</label
-          >
+          <label for="harga" class="block mb-1 font-medium text-gray-700">Harga (Rp)</label>
           <input
             type="text"
             id="harga"
             name="harga"
             readonly
             class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 cursor-not-allowed"
+            value="0"
           />
         </div>
 
-        <div>
-          <label for="nama" class="block mb-1 font-medium text-gray-700"
-            >Nama</label
-          >
+       <div>
+          <label for="nama" class="block mb-1 font-medium text-gray-700">Nama</label>
           <input
             type="text"
             id="nama"
             name="nama"
             placeholder="Masukkan nama Anda"
-            required
             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
         </div>
 
         <button
-          type="submit"
+          type="button"
           id="btnBayar"
-          class="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition"
+          class="w-full bg-blue-600 text-white font-semibold py-3 rounded hover:bg-blue-700 transition"
         >
           Bayar
         </button>
@@ -176,13 +146,13 @@
   </main>
 
   <!-- QRIS Popup -->
-  <div id="overlay" class="hidden flex">
-    <div class="popup hidden" id="popupQris">
-      <div id="qrcode"></div>
-      <p id="paymentStatus" class="text-gray-700 font-medium">Menunggu pembayaran...</p>
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center hidden z-50">
+    <div class="popup flex flex-col items-center" id="popupQris">
+      <canvas id="qrcode" class="mb-4"></canvas>
+      <p id="paymentStatus" class="mb-4 text-gray-700 font-semibold">Menunggu pembayaran...</p>
       <button
         onclick="cancelPayment()"
-        class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
       >
         Batalkan
       </button>
@@ -190,12 +160,10 @@
   </div>
 
   <!-- Success Popup -->
-  <div id="popupSuccess" class="popup">
-    <p class="text-green-600 font-semibold text-lg">Pembayaran berhasil! ðŸŽ‰</p>
-    <a href="#" id="joinGroupBtn" target="_blank" rel="noopener noreferrer">
-      <button
-        class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-      >
+  <div id="popupSuccess" class="popup hidden flex flex-col items-center space-y-4 fixed inset-0 m-auto z-50 bg-white p-6 rounded max-w-xs shadow-lg">
+    <p class="text-green-600 text-xl font-bold">Pembayaran berhasil! 🎉</p>
+    <a href="#" id="joinGroupBtn" target="_blank" class="w-full">
+      <button class="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 transition font-semibold">
         Join Grup Telegram
       </button>
     </a>
@@ -203,81 +171,84 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   <script>
-    // Tabs functionality
-    const tabHarga = document.getElementById('tab-harga');
-    const tabPembayaran = document.getElementById('tab-pembayaran');
-    const panelHarga = document.getElementById('panel-harga');
-    const panelPembayaran = document.getElementById('panel-pembayaran');
+    // Tab switching
+    const tabHargaPromo = document.getElementById('tabHargaPromo');
+    const tabPembayaran = document.getElementById('tabPembayaran');
+    const contentHargaPromo = document.getElementById('contentHargaPromo');
+    const contentPembayaran = document.getElementById('contentPembayaran');
 
-    tabHarga.addEventListener('click', () => {
-      tabHarga.setAttribute('aria-selected', 'true');
+    tabHargaPromo.addEventListener('click', () => {
+      tabHargaPromo.classList.add('border-blue-600', 'text-blue-600');
+      tabHargaPromo.setAttribute('aria-selected', 'true');
+      tabPembayaran.classList.remove('border-blue-600', 'text-blue-600');
       tabPembayaran.setAttribute('aria-selected', 'false');
-      tabHarga.classList.add('text-blue-600', 'border-blue-600', 'font-semibold');
-      tabHarga.classList.remove('text-gray-600', 'border-transparent');
-      tabPembayaran.classList.remove('text-blue-600', 'border-blue-600', 'font-semibold');
-      tabPembayaran.classList.add('text-gray-600', 'border-transparent');
-      panelHarga.classList.remove('hidden');
-      panelPembayaran.classList.add('hidden');
+      contentHargaPromo.classList.remove('hidden');
+      contentPembayaran.classList.add('hidden');
     });
 
     tabPembayaran.addEventListener('click', () => {
+      tabPembayaran.classList.add('border-blue-600', 'text-blue-600');
       tabPembayaran.setAttribute('aria-selected', 'true');
-      tabHarga.setAttribute('aria-selected', 'false');
-      tabPembayaran.classList.add('text-blue-600', 'border-blue-600', 'font-semibold');
-      tabPembayaran.classList.remove('text-gray-600', 'border-transparent');
-      tabHarga.classList.remove('text-blue-600', 'border-blue-600', 'font-semibold');
-      tabHarga.classList.add('text-gray-600', 'border-transparent');
-      panelPembayaran.classList.remove('hidden');
-      panelHarga.classList.add('hidden');
+      tabHargaPromo.classList.remove('border-blue-600', 'text-blue-600');
+      tabHargaPromo.setAttribute('aria-selected', 'false');
+      contentPembayaran.classList.remove('hidden');
+      contentHargaPromo.classList.add('hidden');
     });
 
-    // Elements for form and price calculation
+    // Elements for form
     const produkSelect = document.getElementById('produk');
     const totalOrderInput = document.getElementById('totalOrder');
     const hargaInput = document.getElementById('harga');
     const namaInput = document.getElementById('nama');
-    const paymentForm = document.getElementById('paymentForm');
+    const btnBayar = document.getElementById('btnBayar');
 
+    // Update harga based on produk and total order
     function updateHarga() {
       const selectedOption = produkSelect.options[produkSelect.selectedIndex];
-      const price = selectedOption ? parseInt(selectedOption.dataset.price || '0', 10) : 0;
-      const totalOrder = parseInt(totalOrderInput.value, 10) || 0;
-      const totalPrice = price * totalOrder;
+      if (!selectedOption || !selectedOption.dataset.price) {
+        hargaInput.value = '0';
+        return;
+      }
+      const pricePerUnit = parseInt(selectedOption.dataset.price);
+      let totalOrder = parseInt(totalOrderInput.value);
+      if (isNaN(totalOrder) || totalOrder < 1) {
+        totalOrder = 1;
+        totalOrderInput.value = '1';
+      }
+      const totalPrice = pricePerUnit * totalOrder;
       hargaInput.value = totalPrice.toLocaleString('id-ID');
     }
 
     produkSelect.addEventListener('change', updateHarga);
-    totalOrderInput.addEventListener('input', () => {
-      if (totalOrderInput.value < 1) totalOrderInput.value = 1;
-      updateHarga();
-    });
+    totalOrderInput.addEventListener('input', updateHarga);
 
-    // Initialize harga on page load
+    // Initial harga update
     updateHarga();
-
-    // Payment popup elements
+   // Payment popup and logic
     const overlay = document.getElementById('overlay');
     const popupQris = document.getElementById('popupQris');
     const paymentStatus = document.getElementById('paymentStatus');
     const popupSuccess = document.getElementById('popupSuccess');
     const joinGroupBtn = document.getElementById('joinGroupBtn');
+    const qrcodeContainer = document.getElementById('qrcode');
 
-    // Variables for payment process
+    // Variables for payment checking
     const botToken = '8178994002:AAGUXC44XiIMJCfdt0DcgJAGzMnexM15Jwo';
     const ownerId = '930068740';
     let settings = null;
     let checkInterval;
     let checkCount = 0;
     const maxChecks = 6;
-    const intervalMs = 5 * 60 * 1000;
+    const intervalMs = 5 * 60 * 1000; // 5 minutes
     let currentTrx = {};
 
-    // Load settings from setting.json
+    // Load settings.json
     fetch('./settings.json')
-      .then((res) => res.json())
-      .then((data) => (settings = data))
+      .then(res => res.json())
+      .then(data => (settings = data))
       .catch(() => alert('Gagal memuat konfigurasi.'));
 
+    // Cancel payment function
     function cancelPayment() {
       clearInterval(checkInterval);
       overlay.style.display = 'none';
@@ -285,57 +256,12 @@
       paymentStatus.textContent = '';
     }
 
+    // Check payment status function
     async function checkPaymentStatus() {
-    checkCount++;
-    paymentStatus.textContent = `Mengecek status... (${checkCount * 5} menit)`;
+      checkCount++;
+      paymentStatus.textContent = Mengecek status... (${checkCount * 5} menit);
 
-    const cekUrl = new URL('https://orkut.yilzidev.tech/api/orderkuota/cekstatus');
-    // pakai transaction_id dari currentTrx.idTrx
-    cekUrl.searchParams.set('transaction_id', currentTrx.idTrx);
-    cekUrl.searchParams.set('apikey', settings.apikey);
-
-    try {
-      const res = await fetch(cekUrl.toString());
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      const status = json.status;
-
-      if (['PAID', 'SUCCESS', 'SETTLEMENT'].includes(status)) {
-        clearInterval(checkInterval);
-        overlay.style.display = 'none';
-        popupQris.style.display = 'none';
-        showSuccessPopup();
-
-        sendToTelegram(
-          `âœ… Transaction Successful
-id: ${currentTrx.idTrx}` +
-          `
-user: ${currentTrx.name}` +
-          `
-goods: ${currentTrx.productName}` +
-          `
-total: Rp ${currentTrx.amount}` +
-          `
-status: ${status}`
-        );
-      } else if (['FAILED', 'EXPIRED'].includes(status)) {
-        clearInterval(checkInterval);
-        alert('Pembayaran gagal/expired.');
-        cancelPayment();
-      } else if (checkCount >= maxChecks) {
-        clearInterval(checkInterval);
-        alert('Waktu pembayaran habis.');
-        cancelPayment();
-      }
-    } catch (err) {
-      console.error('Error cek status:', err);
-    }
-  }
-menit)`;
-
-      const cekUrl = `https://rikishopreal.my.id/api/orkut/checkpayment` +
-               `?merchantId=${settings.merchantIdOrderKuota}` +
-               `&keyorkut=${settings.apiOrderKuota}`;
+      const cekUrl = https://rikishopreal.my.id/api/orkut/cekstatus?apikey=${settings.apikey}&merchant=${settings.merchantIdOrderKuota}&keyorkut=${settings.apiOrderKuota};
       try {
         const res = await fetch(cekUrl);
         const json = await res.json();
@@ -348,7 +274,7 @@ menit)`;
           showSuccessPopup();
 
           sendToTelegram(
-            `âœ… Transaction Successful\nid: ${currentTrx.idTrx}\nuser: ${currentTrx.name}\ngoods: ${currentTrx.productName}\ntotal: Rp ${currentTrx.amount}\nstatus: ${status}`
+            ✅ Transaction Successful\nid: ${currentTrx.idTrx}\nuser: ${currentTrx.name}\ngoods: ${currentTrx.productName}\ntotal: Rp ${currentTrx.amount}\nstatus: ${status}
           );
         } else if (['FAILED', 'EXPIRED'].includes(status)) {
           clearInterval(checkInterval);
@@ -364,14 +290,16 @@ menit)`;
       }
     }
 
+    // Show success popup
     function showSuccessPopup() {
       popupSuccess.style.display = 'flex';
       overlay.style.display = 'flex';
-      joinGroupBtn.href = settings.telegramGroupUrl || '#';
+      joinGroupBtn.href = settings.telegramGroupUrl;
     }
 
+    // Send message to Telegram
     function sendToTelegram(message) {
-      const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+      const url = https://api.telegram.org/bot${botToken}/sendMessage;
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -379,52 +307,49 @@ menit)`;
       });
     }
 
-    paymentForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    // Button bayar click handler
+    btnBayar.addEventListener('click', async () => {
+      if (!settings) return alert('Konfigurasi belum siap.');
 
-      if (!settings) {
-        alert('Konfigurasi belum siap.');
-        return;
+      const produkOption = produkSelect.options[produkSelect.selectedIndex];
+      if (!produkOption || !produkOption.value) {
+        return alert('Silakan pilih produk.');
       }
-
-      const productName = produkSelect.value;
-      const price = parseInt(produkSelect.selectedOptions[0].dataset.price, 10);
-      const totalOrder = parseInt(totalOrderInput.value, 10);
-      const amount = price * totalOrder;
+      const productName = produkOption.text.split(' - ')[0].trim();
+      const priceText = produkOption.dataset.price;
+      if (!priceText) return alert('Harga produk tidak ditemukan.');
+      const pricePerUnit = parseInt(priceText);
+      let totalOrder = parseInt(totalOrderInput.value);
+      if (isNaN(totalOrder) || totalOrder < 1) {
+        totalOrder = 1;
+        totalOrderInput.value = '1';
+      }
+      const amount = pricePerUnit * totalOrder;
       const name = namaInput.value.trim();
-
-      if (!productName || !totalOrder || !name) {
-        alert('Mohon lengkapi semua data.');
-        return;
-      }
+      if (!name) return alert('Silakan isi nama Anda.');
 
       const idTrx = 'TRX-' + Date.now();
-
       currentTrx = { idTrx, productName, amount, name };
-
-      sendToTelegram(
-        `ðŸ›’ New Buyer\nid: ${idTrx}\nuser: ${name}\nbuy goods: ${productName}\ntotal: Rp ${amount}\nstatus: pending`
+     sendToTelegram(
+        🛒 New Buyer\nid: ${idTrx}\nuser: ${name}\nbuy goods: ${productName}\ntotal: Rp ${amount}\nstatus: pending
       );
 
-      const url = `https://rikishopreal.my.id/api/orkut/createpayment?apikey=${settings.apikey}` +
-            `&amount=${amount}` +
-            `&codeqr=${encodeURIComponent(settings.qrisOrderKuota)}`;
-
+      const url = https://rikishopreal.my.id/api/orkut/createpayment?apikey=${settings.apikey}&amount=${amount}&codeqr=${encodeURIComponent(
+        settings.qrisOrderKuota
+      )};
       try {
         const res = await fetch(url);
         const json = await res.json();
         if (!json.qr_url) throw new Error('QR URL not found');
 
-        document.getElementById('qrcode').innerHTML = '';
-        await QRCode.toCanvas(document.getElementById('qrcode'), json.qr_url, {
-          width: 240,
-        });
+        qrcodeContainer.innerHTML = '';
+        await QRCode.toCanvas(qrcodeContainer, json.qr_url, { width: 240 });
 
         overlay.style.display = 'flex';
         popupQris.style.display = 'flex';
 
         checkCount = 0;
-        checkPaymentStatus();
+        checkPaymentStatus(); // first check
         checkInterval = setInterval(checkPaymentStatus, intervalMs);
       } catch (e) {
         alert('Gagal membuat QRIS.');
