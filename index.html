@@ -1,0 +1,820 @@
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trie Str</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <div id="app" class="flex-grow flex flex-col max-w-4xl mx-auto p-4">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-indigo-700">Trie Str</h1>
+      <button
+        id="adminLoginBtn"
+        class="text-indigo-600 hover:text-indigo-800 font-semibold focus:outline-none"
+        aria-label="Admin Login"
+      >
+        Admin Login
+      </button>
+    </header>
+
+    <!-- Tabs -->
+    <nav class="mb-6 border-b border-gray-300">
+      <ul class="flex space-x-6 text-lg font-medium text-gray-600" role="tablist">
+        <li>
+          <button
+            id="tabProduk"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panelProduk"
+            tabindex="0"
+            class="pb-2 border-b-4 border-indigo-600 text-indigo-700 focus:outline-none"
+          >
+            Produk
+          </button>
+        </li>
+        <li>
+          <button
+            id="tabBenefit"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panelBenefit"
+            tabindex="-1"
+            class="pb-2 border-b-4 border-transparent hover:border-indigo-400 focus:outline-none"
+          >
+            Benefit
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Tab Panels -->
+    <section id="panelProduk" role="tabpanel" aria-labelledby="tabProduk" tabindex="0" class="">
+      <div id="catalogContainer" class="space-y-6">
+        <!-- Catalogs will be rendered here -->
+      </div>
+    </section>
+
+    <section
+      id="panelBenefit"
+      role="tabpanel"
+      aria-labelledby="tabBenefit"
+      tabindex="0"
+      class="hidden"
+    >
+      <div id="benefitButtons" class="flex flex-col space-y-4 max-w-xl mx-auto">
+        <!-- Benefit buttons will be rendered here -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Popup Modal -->
+  <div
+    id="popupModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="popupTitle"
+  >
+    <div
+      class="bg-white rounded-lg max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-lg relative"
+    >
+      <button
+        id="popupCloseBtn"
+        class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none"
+        aria-label="Close popup"
+      >
+        <i class="fas fa-times fa-lg"></i>
+      </button>
+      <div class="p-4 flex flex-col space-y-4">
+        <video
+          id="popupVideo"
+          controls
+          class="w-full rounded-md"
+          src=""
+          aria-describedby="popupText"
+        ></video>
+        <p id="popupText" class="text-gray-700 text-base"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal -->
+  <div
+    id="adminLoginModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="adminLoginTitle"
+  >
+    <div class="bg-white rounded-lg max-w-sm w-full p-6 shadow-lg relative">
+      <button
+        id="adminLoginCloseBtn"
+        class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none"
+        aria-label="Close admin login"
+      >
+        <i class="fas fa-times fa-lg"></i>
+      </button>
+      <h2 id="adminLoginTitle" class="text-xl font-semibold mb-4 text-indigo-700">
+        Admin Login
+      </h2>
+      <form id="adminLoginForm" class="flex flex-col space-y-4" autocomplete="off">
+        <label for="adminPassword" class="font-medium text-gray-700">Password</label>
+        <input
+          type="password"
+          id="adminPassword"
+          name="adminPassword"
+          required
+          class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          aria-describedby="adminPasswordHelp"
+          autocomplete="new-password"
+        />
+        <p id="adminPasswordHelp" class="text-sm text-gray-500">
+          Enter admin password to manage content.
+        </p>
+        <button
+          type="submit"
+          class="bg-indigo-600 text-white rounded-md py-2 font-semibold hover:bg-indigo-700 focus:outline-none"
+        >
+          Login
+        </button>
+        <p id="adminLoginError" class="text-red-600 text-sm hidden" role="alert"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Panel Modal -->
+  <div
+    id="adminPanelModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50 overflow-auto"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="adminPanelTitle"
+  >
+    <div class="bg-white rounded-lg max-w-4xl w-full p-6 shadow-lg relative max-h-[90vh] overflow-y-auto">
+      <button
+        id="adminPanelCloseBtn"
+        class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none"
+        aria-label="Close admin panel"
+      >
+        <i class="fas fa-times fa-lg"></i>
+      </button>
+      <h2 id="adminPanelTitle" class="text-2xl font-semibold mb-6 text-indigo-700">
+        Admin Panel
+      </h2>
+
+      <div class="space-y-8">
+        <!-- Catalog Management -->
+        <section>
+          <h3 class="text-xl font-semibold mb-3 border-b border-indigo-300 pb-1 text-indigo-600">
+            Catalog Management
+          </h3>
+          <div id="catalogManagement" class="space-y-4 max-h-72 overflow-y-auto border border-gray-300 rounded p-3">
+            <!-- Catalog items for editing will appear here -->
+          </div>
+          <button
+            id="addCatalogBtn"
+            class="mt-3 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 focus:outline-none"
+          >
+            + Add Catalog
+          </button>
+        </section>
+
+        <!-- Product Management -->
+        <section>
+          <h3 class="text-xl font-semibold mb-3 border-b border-indigo-300 pb-1 text-indigo-600">
+            Product Management
+          </h3>
+          <div id="productManagement" class="space-y-4 max-h-72 overflow-y-auto border border-gray-300 rounded p-3">
+            <!-- Product items for editing will appear here -->
+          </div>
+          <button
+            id="addProductBtn"
+            class="mt-3 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 focus:outline-none"
+          >
+            + Add Product
+          </button>
+        </section>
+
+        <!-- Benefit Management -->
+        <section>
+          <h3 class="text-xl font-semibold mb-3 border-b border-indigo-300 pb-1 text-indigo-600">
+            Benefit Management
+          </h3>
+          <div id="benefitManagement" class="space-y-4 max-h-72 overflow-y-auto border border-gray-300 rounded p-3">
+            <!-- Benefit items for editing will appear here -->
+          </div>
+          <button
+            id="addBenefitBtn"
+            class="mt-3 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 focus:outline-none"
+          >
+            + Add Benefit
+          </button>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // Data structure for catalogs, products, benefits
+      let catalogs = [
+        {
+          id: crypto.randomUUID(),
+          name: "Catalog A",
+          products: [
+            {
+              id: crypto.randomUUID(),
+              name: "Produk Alpha",
+              price: "Rp 150.000",
+            },
+            {
+              id: crypto.randomUUID(),
+              name: "Produk Beta",
+              price: "Rp 200.000",
+            },
+          ],
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "Catalog B",
+          products: [
+            {
+              id: crypto.randomUUID(),
+              name: "Produk Gamma",
+              price: "Rp 175.000",
+            },
+            {
+              id: crypto.randomUUID(),
+              name: "Produk Delta",
+              price: "Rp 225.000",
+            },
+          ],
+        },
+      ];
+
+      let benefits = [
+        {
+          id: crypto.randomUUID(),
+          title: "Benefit 1",
+          text: "Benefit pertama yang sangat membantu meningkatkan kualitas hidup.",
+          video:
+            "https://placehold.co/600x400?text=Video+Benefit+1+Placeholder+Video+File+Not+Available",
+          videoType: "placeholder",
+        },
+        {
+          id: crypto.randomUUID(),
+          title: "Benefit 2",
+          text: "Benefit kedua yang membuat Anda lebih produktif dan sehat.",
+          video:
+            "https://placehold.co/600x400?text=Video+Benefit+2+Placeholder+Video+File+Not+Available",
+          videoType: "placeholder",
+        },
+      ];
+
+      // Admin password
+      const ADMIN_PASSWORD = "ArinsJaya@1";
+
+      // Elements
+      const tabProdukBtn = document.getElementById("tabProduk");
+      const tabBenefitBtn = document.getElementById("tabBenefit");
+      const panelProduk = document.getElementById("panelProduk");
+      const panelBenefit = document.getElementById("panelBenefit");
+      const catalogContainer = document.getElementById("catalogContainer");
+      const benefitButtonsContainer = document.getElementById("benefitButtons");
+      const popupModal = document.getElementById("popupModal");
+      const popupCloseBtn = document.getElementById("popupCloseBtn");
+      const popupVideo = document.getElementById("popupVideo");
+      const popupText = document.getElementById("popupText");
+      const adminLoginBtn = document.getElementById("adminLoginBtn");
+      const adminLoginModal = document.getElementById("adminLoginModal");
+      const adminLoginCloseBtn = document.getElementById("adminLoginCloseBtn");
+      const adminLoginForm = document.getElementById("adminLoginForm");
+      const adminPasswordInput = document.getElementById("adminPassword");
+      const adminLoginError = document.getElementById("adminLoginError");
+      const adminPanelModal = document.getElementById("adminPanelModal");
+      const adminPanelCloseBtn = document.getElementById("adminPanelCloseBtn");
+      const catalogManagement = document.getElementById("catalogManagement");
+      const productManagement = document.getElementById("productManagement");
+      const benefitManagement = document.getElementById("benefitManagement");
+      const addCatalogBtn = document.getElementById("addCatalogBtn");
+      const addProductBtn = document.getElementById("addProductBtn");
+      const addBenefitBtn = document.getElementById("addBenefitBtn");
+
+      // State
+      let currentTab = "produk";
+      let adminLoggedIn = false;
+
+      // Utility: sanitize text for URL
+      function encodeForUrl(text) {
+        return encodeURIComponent(text);
+      }
+
+      // Render functions
+      function renderCatalogs() {
+        catalogContainer.innerHTML = "";
+        catalogs.forEach((catalog, cIndex) => {
+          const catalogId = `catalog-${catalog.id}`;
+          const detailsEl = document.createElement("details");
+          detailsEl.className =
+            "border border-gray-300 rounded-md bg-white shadow-sm";
+          detailsEl.setAttribute("open", cIndex === 0 ? "open" : null);
+
+          const summaryEl = document.createElement("summary");
+          summaryEl.className =
+            "cursor-pointer select-none font-semibold text-indigo-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md";
+          summaryEl.textContent = catalog.name;
+
+          detailsEl.appendChild(summaryEl);
+
+          const productsContainer = document.createElement("div");
+          productsContainer.className = "px-6 py-4 space-y-4";
+
+          catalog.products.forEach((product) => {
+            const productDiv = document.createElement("div");
+            productDiv.className =
+              "flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 rounded-md p-3 shadow-inner";
+
+            const productInfo = document.createElement("div");
+            productInfo.className = "mb-2 sm:mb-0";
+
+            const productName = document.createElement("p");
+            productName.className = "font-semibold text-gray-800";
+            productName.textContent = product.name;
+
+            const productPrice = document.createElement("p");
+            productPrice.className = "text-indigo-600 font-semibold";
+            productPrice.textContent = product.price;
+
+            productInfo.appendChild(productName);
+            productInfo.appendChild(productPrice);
+
+            const buttonsDiv = document.createElement("div");
+            buttonsDiv.className = "flex space-x-3";
+
+            // See Benefit button
+            const seeBenefitBtn = document.createElement("button");
+            seeBenefitBtn.className =
+              "bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+            seeBenefitBtn.textContent = "See Benefit";
+            seeBenefitBtn.type = "button";
+            seeBenefitBtn.addEventListener("click", () => {
+              switchTab("benefit");
+            });
+
+            // Cart button with icon
+            const cartBtn = document.createElement("button");
+            cartBtn.className =
+              "bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center";
+            cartBtn.type = "button";
+            cartBtn.setAttribute("aria-label", `Add ${product.name} to cart`);
+            const cartIcon = document.createElement("i");
+            cartIcon.className = "fas fa-shopping-cart";
+            cartBtn.appendChild(cartIcon);
+            cartBtn.addEventListener("click", () => {
+              const url = `https://wa.me/6283857797304?text=bang+beli+${encodeForUrl(
+                product.name
+              )}+dong`;
+              window.open(url, "_blank", "noopener");
+            });
+
+            buttonsDiv.appendChild(seeBenefitBtn);
+            buttonsDiv.appendChild(cartBtn);
+
+            productDiv.appendChild(productInfo);
+            productDiv.appendChild(buttonsDiv);
+
+            productsContainer.appendChild(productDiv);
+          });
+
+          detailsEl.appendChild(productsContainer);
+          catalogContainer.appendChild(detailsEl);
+        });
+      }
+
+      function renderBenefits() {
+        benefitButtonsContainer.innerHTML = "";
+        benefits.forEach((benefit) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className =
+            "bg-indigo-600 text-white rounded-md py-2 font-semibold hover:bg-indigo-700 focus:outline-none";
+          btn.textContent = benefit.title;
+          btn.addEventListener("click", () => {
+            openBenefitPopup(benefit);
+          });
+          benefitButtonsContainer.appendChild(btn);
+        });
+      }
+
+      function openBenefitPopup(benefit) {
+        // If video is a placeholder image, show it as poster with no video source
+        if (benefit.videoType === "placeholder") {
+          popupVideo.src = "";
+          popupVideo.poster = benefit.video;
+          popupVideo.controls = false;
+        } else {
+          popupVideo.src = benefit.video;
+          popupVideo.poster = "";
+          popupVideo.controls = true;
+        }
+        popupText.textContent = benefit.text;
+        popupModal.classList.remove("hidden");
+        popupModal.focus();
+      }
+
+      function closeBenefitPopup() {
+        popupModal.classList.add("hidden");
+        popupVideo.pause();
+        popupVideo.src = "";
+        popupVideo.poster = "";
+        popupText.textContent = "";
+      }
+
+      // Tab switching
+      function switchTab(tabName) {
+        if (tabName === currentTab) return;
+        currentTab = tabName;
+        if (tabName === "produk") {
+          panelProduk.classList.remove("hidden");
+          panelBenefit.classList.add("hidden");
+          tabProdukBtn.setAttribute("aria-selected", "true");
+          tabProdukBtn.classList.add("border-indigo-600", "text-indigo-700");
+          tabProdukBtn.classList.remove("border-transparent", "hover:border-indigo-400");
+          tabProdukBtn.tabIndex = 0;
+
+          tabBenefitBtn.setAttribute("aria-selected", "false");
+          tabBenefitBtn.classList.remove("border-indigo-600", "text-indigo-700");
+          tabBenefitBtn.classList.add("border-transparent", "hover:border-indigo-400");
+          tabBenefitBtn.tabIndex = -1;
+          panelProduk.focus();
+        } else if (tabName === "benefit") {
+          panelProduk.classList.add("hidden");
+          panelBenefit.classList.remove("hidden");
+          tabProdukBtn.setAttribute("aria-selected", "false");
+          tabProdukBtn.classList.remove("border-indigo-600", "text-indigo-700");
+          tabProdukBtn.classList.add("border-transparent", "hover:border-indigo-400");
+          tabProdukBtn.tabIndex = -1;
+
+          tabBenefitBtn.setAttribute("aria-selected", "true");
+          tabBenefitBtn.classList.add("border-indigo-600", "text-indigo-700");
+          tabBenefitBtn.classList.remove("border-transparent", "hover:border-indigo-400");
+          tabBenefitBtn.tabIndex = 0;
+          panelBenefit.focus();
+        }
+      }
+
+      // Admin login modal open/close
+      function openAdminLogin() {
+        adminLoginModal.classList.remove("hidden");
+        adminPasswordInput.value = "";
+        adminLoginError.classList.add("hidden");
+        adminPasswordInput.focus();
+      }
+      function closeAdminLogin() {
+        adminLoginModal.classList.add("hidden");
+      }
+
+      // Admin panel modal open/close
+      function openAdminPanel() {
+        adminPanelModal.classList.remove("hidden");
+        renderAdminPanel();
+      }
+      function closeAdminPanel() {
+        adminPanelModal.classList.add("hidden");
+      }
+
+      // Render admin panel content
+      function renderAdminPanel() {
+        renderCatalogManagement();
+        renderProductManagement();
+        renderBenefitManagement();
+      }
+
+      // Catalog Management
+      function renderCatalogManagement() {
+        catalogManagement.innerHTML = "";
+        catalogs.forEach((catalog, index) => {
+          const div = document.createElement("div");
+          div.className = "flex items-center space-x-3";
+
+          const input = document.createElement("input");
+          input.type = "text";
+          input.value = catalog.name;
+          input.className =
+            "flex-grow border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+          input.setAttribute("aria-label", `Edit catalog name ${catalog.name}`);
+          input.addEventListener("input", (e) => {
+            catalogs[index].name = e.target.value;
+            renderCatalogs();
+          });
+
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className =
+            "text-red-600 hover:text-red-800 focus:outline-none";
+          delBtn.setAttribute("aria-label", `Delete catalog ${catalog.name}`);
+          delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+          delBtn.addEventListener("click", () => {
+            if (
+              confirm(
+                `Are you sure you want to delete catalog "${catalogs[index].name}"? This will also delete all its products.`
+              )
+            ) {
+              catalogs.splice(index, 1);
+              renderCatalogs();
+              renderAdminPanel();
+            }
+          });
+
+          div.appendChild(input);
+          div.appendChild(delBtn);
+          catalogManagement.appendChild(div);
+        });
+      }
+
+      // Product Management
+      function renderProductManagement() {
+        productManagement.innerHTML = "";
+        catalogs.forEach((catalog, cIndex) => {
+          const catalogTitle = document.createElement("h4");
+          catalogTitle.textContent = `Catalog: ${catalogs[cIndex].name}`;
+          catalogTitle.className = "font-semibold text-indigo-700 mt-3 mb-1";
+          productManagement.appendChild(catalogTitle);
+
+          if (catalog.products.length === 0) {
+            const noProd = document.createElement("p");
+            noProd.textContent = "No products in this catalog.";
+            noProd.className = "text-gray-500 mb-2";
+            productManagement.appendChild(noProd);
+          }
+
+          catalog.products.forEach((product, pIndex) => {
+            const div = document.createElement("div");
+            div.className = "flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-2";
+
+            const nameInput = document.createElement("input");
+            nameInput.type = "text";
+            nameInput.value = product.name;
+            nameInput.className =
+              "flex-grow border border-gray-300 rounded px-3 py-1 mb-1 sm:mb-0 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+            nameInput.setAttribute(
+              "aria-label",
+              `Edit product name ${product.name} in catalog ${catalogs[cIndex].name}`
+            );
+            nameInput.addEventListener("input", (e) => {
+              catalogs[cIndex].products[pIndex].name = e.target.value;
+              renderCatalogs();
+            });
+
+            const priceInput = document.createElement("input");
+            priceInput.type = "text";
+            priceInput.value = product.price;
+            priceInput.className =
+              "w-32 border border-gray-300 rounded px-3 py-1 mb-1 sm:mb-0 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+            priceInput.setAttribute(
+              "aria-label",
+              `Edit product price ${product.price} in catalog ${catalogs[cIndex].name}`
+            );
+            priceInput.addEventListener("input", (e) => {
+              catalogs[cIndex].products[pIndex].price = e.target.value;
+              renderCatalogs();
+            });
+
+            const delBtn = document.createElement("button");
+            delBtn.type = "button";
+            delBtn.className =
+              "text-red-600 hover:text-red-800 focus:outline-none self-start sm:self-auto";
+            delBtn.setAttribute(
+              "aria-label",
+              `Delete product ${product.name} in catalog ${catalogs[cIndex].name}`
+            );
+            delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            delBtn.addEventListener("click", () => {
+              if (
+                confirm(
+                  `Are you sure you want to delete product "${product.name}" from catalog "${catalogs[cIndex].name}"?`
+                )
+              ) {
+                catalogs[cIndex].products.splice(pIndex, 1);
+                renderCatalogs();
+                renderAdminPanel();
+              }
+            });
+
+            div.appendChild(nameInput);
+            div.appendChild(priceInput);
+            div.appendChild(delBtn);
+            productManagement.appendChild(div);
+          });
+        });
+      }
+
+      // Benefit Management
+      function renderBenefitManagement() {
+        benefitManagement.innerHTML = "";
+        benefits.forEach((benefit, index) => {
+          const div = document.createElement("div");
+          div.className = "flex flex-col sm:flex-row sm:items-center sm:space-x-3";
+
+          const titleInput = document.createElement("input");
+          titleInput.type = "text";
+          titleInput.value = benefit.title;
+          titleInput.className =
+            "flex-grow border border-gray-300 rounded px-3 py-1 mb-1 sm:mb-0 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+          titleInput.setAttribute("aria-label", `Edit benefit title ${benefit.title}`);
+          titleInput.addEventListener("input", (e) => {
+            benefits[index].title = e.target.value;
+            renderBenefits();
+          });
+
+          const textInput = document.createElement("textarea");
+          textInput.value = benefit.text;
+          textInput.rows = 2;
+          textInput.className =
+            "flex-grow border border-gray-300 rounded px-3 py-1 mb-1 sm:mb-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y";
+          textInput.setAttribute("aria-label", `Edit benefit text ${benefit.title}`);
+          textInput.addEventListener("input", (e) => {
+            benefits[index].text = e.target.value;
+          });
+
+          const videoInput = document.createElement("input");
+          videoInput.type = "url";
+          videoInput.value = benefit.video;
+          videoInput.className =
+            "flex-grow border border-gray-300 rounded px-3 py-1 mb-1 sm:mb-0 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+          videoInput.setAttribute("aria-label", `Edit benefit video URL ${benefit.title}`);
+          videoInput.placeholder = "Video URL or placeholder image URL";
+          videoInput.addEventListener("input", (e) => {
+            benefits[index].video = e.target.value;
+            // Detect if URL ends with video extension or is placeholder image
+            const val = e.target.value.toLowerCase();
+            if (
+              val.endsWith(".mp4") ||
+              val.endsWith(".webm") ||
+              val.endsWith(".ogg") ||
+              val.endsWith(".mov") ||
+              val.endsWith(".mkv")
+            ) {
+              benefits[index].videoType = "video";
+            } else {
+              benefits[index].videoType = "placeholder";
+            }
+          });
+
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className =
+            "text-red-600 hover:text-red-800 focus:outline-none self-start sm:self-auto";
+          delBtn.setAttribute("aria-label", `Delete benefit ${benefit.title}`);
+          delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+          delBtn.addEventListener("click", () => {
+            if (
+              confirm(
+                `Are you sure you want to delete benefit "${benefits[index].title}"?`
+              )
+            ) {
+              benefits.splice(index, 1);
+              renderBenefits();
+              renderAdminPanel();
+            }
+          });
+
+          div.appendChild(titleInput);
+          div.appendChild(textInput);
+          div.appendChild(videoInput);
+          div.appendChild(delBtn);
+          benefitManagement.appendChild(div);
+        });
+      }
+
+      // Add new catalog
+      addCatalogBtn.addEventListener("click", () => {
+        const newCatalog = {
+          id: crypto.randomUUID(),
+          name: "New Catalog",
+          products: [],
+        };
+        catalogs.push(newCatalog);
+        renderCatalogs();
+        renderAdminPanel();
+      });
+
+      // Add new product
+      addProductBtn.addEventListener("click", () => {
+        if (catalogs.length === 0) {
+          alert("Please add a catalog first before adding products.");
+          return;
+        }
+        // Add product to last catalog by default
+        const newProduct = {
+          id: crypto.randomUUID(),
+          name: "New Product",
+          price: "Rp 0",
+        };
+        catalogs[catalogs.length - 1].products.push(newProduct);
+        renderCatalogs();
+        renderAdminPanel();
+      });
+
+      // Add new benefit
+      addBenefitBtn.addEventListener("click", () => {
+        const newBenefit = {
+          id: crypto.randomUUID(),
+          title: "New Benefit",
+          text: "Benefit description here.",
+          video:
+            "https://placehold.co/600x400?text=New+Benefit+Video+Placeholder",
+          videoType: "placeholder",
+        };
+        benefits.push(newBenefit);
+        renderBenefits();
+        renderAdminPanel();
+      });
+
+      // Event listeners for tabs
+      tabProdukBtn.addEventListener("click", () => switchTab("produk"));
+      tabBenefitBtn.addEventListener("click", () => switchTab("benefit"));
+
+      // Popup close
+      popupCloseBtn.addEventListener("click", closeBenefitPopup);
+      popupModal.addEventListener("click", (e) => {
+        if (e.target === popupModal) closeBenefitPopup();
+      });
+
+      // Admin login open/close
+      adminLoginBtn.addEventListener("click", openAdminLogin);
+      adminLoginCloseBtn.addEventListener("click", closeAdminLogin);
+      adminLoginModal.addEventListener("click", (e) => {
+        if (e.target === adminLoginModal) closeAdminLogin();
+      });
+
+      // Admin panel close
+      adminPanelCloseBtn.addEventListener("click", closeAdminPanel);
+      adminPanelModal.addEventListener("click", (e) => {
+        if (e.target === adminPanelModal) closeAdminPanel();
+      });
+
+      // Admin login form submit
+      adminLoginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const pw = adminPasswordInput.value;
+        if (pw === ADMIN_PASSWORD) {
+          adminLoggedIn = true;
+          closeAdminLogin();
+          openAdminPanel();
+        } else {
+          adminLoginError.textContent = "Incorrect password.";
+          adminLoginError.classList.remove("hidden");
+          adminPasswordInput.focus();
+        }
+      });
+
+      // Initial render
+      renderCatalogs();
+      renderBenefits();
+
+      // Keyboard accessibility for tabs
+      function handleTabKeydown(e) {
+        const tabs = [tabProdukBtn, tabBenefitBtn];
+        let index = tabs.indexOf(document.activeElement);
+        if (index === -1) return;
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          index = (index + 1) % tabs.length;
+          tabs[index].focus();
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          index = (index - 1 + tabs.length) % tabs.length;
+          tabs[index].focus();
+        } else if (e.key === "Home") {
+          e.preventDefault();
+          tabs[0].focus();
+        } else if (e.key === "End") {
+          e.preventDefault();
+          tabs[tabs.length - 1].focus();
+        } else if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          tabs[index].click();
+        }
+      }
+      tabProdukBtn.addEventListener("keydown", handleTabKeydown);
+      tabBenefitBtn.addEventListener("keydown", handleTabKeydown);
+    })();
+  </script>
+</body>
+</html>
